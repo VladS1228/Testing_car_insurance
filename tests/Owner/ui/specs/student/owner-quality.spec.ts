@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures/fixtures';
-import { generateOwnerData } from '../../../shared/data/test-data';
+import { uniqueOwnerData } from '../../../shared/data/test-data';
 test.describe('Owner Table Functionality @owners', () => {
     test.beforeEach(async ({ ownersPage }) => {
         await ownersPage.navigate();
@@ -71,17 +71,14 @@ test.describe('Owner Navigation and Accessibility @owners', () => {
     });
 
     test('OWN-LIST-005: Clicking `View cars` action opens cars page @regression', async ({ page, ownersPage }) => {
-    // Luăm direct primul rând din tabel
+    
     const firstRow = await ownersPage.getRowByIndex(0);
     
-    // Căutăm butonul din interiorul celulei de acțiuni a primului rând
-    // Folosim o cautare genérica dupa partial match pe data-testid
+    
     const viewBtn = firstRow.locator('[data-testid*="view-owner-cars"]');
     
     await viewBtn.waitFor({ state: 'visible' });
     await viewBtn.click();
-
-    // Validăm schimbarea URL-ului
     await expect(page).toHaveURL(/.*\/owners\/[a-zA-Z0-9-]+\/cars/);
 });
 
@@ -118,27 +115,30 @@ test.describe('Owner Navigation and Accessibility @owners', () => {
 test.describe('Owner Table Pagination @regression', () => {
     
     test.beforeAll(async ({ request }) => {
+        const createRequests = [];
+        
         for (let i = 0; i < 26; i++) {
-            const ownerPayload = generateOwnerData();
-            await request.post('/api/owners', {
-                data: ownerPayload
-            });
+            const ownerPayload = uniqueOwnerData();
+            createRequests.push(
+                request.post('/api/owners', { data: ownerPayload })
+            );
         }
+
+        await Promise.all(createRequests);
     });
 
     test.beforeEach(async ({ ownersPage }) => {
         await ownersPage.navigate();
     });
 
-    test('OWN-LIST-013: Changing rows-per-page updates visible rows @smoke', async ({ ownersPage }) => {
-        // Deoarece am generat 26 de owneri, acum putem verifica exact numărul maxim afișat
-        await ownersPage.setPageSize('10');
-        let count = await ownersPage.getVisibleRowsCount();
-        expect(count).toBe(10); 
+    test('OWN-LIST-013: Changing rows-per-page updates visible rows @smoke', async ({ ownersPage, page }) => {
+        const rowsLocator = page.locator('tbody tr[data-testid^="owners-table-row-"]');
 
-        await ownersPage.setPageSize('25');
-        count = await ownersPage.getVisibleRowsCount();
-        expect(count).toBe(25); 
+    await ownersPage.setPageSize('10');
+    await expect(rowsLocator).toHaveCount(10); 
+
+    await ownersPage.setPageSize('25');
+    await expect(rowsLocator).toHaveCount(25); 
     });
 
     test('OWN-LIST-011 & 012: Pagination next and previous @regression', async ({ ownersPage }) => {

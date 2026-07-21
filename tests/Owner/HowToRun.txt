@@ -1,0 +1,35 @@
+1. Running tests in Headless Mode
+This is the standard execution method, running the tests in the background without visually rendering the browser interface. It is the recommended method for fast validations and continuous integration (CI/CD).
+
+Running all tests in the project:
+npx playwright test
+
+Running a specific file:
+npx playwright test tests/Owner/ui/specs/student/owner-quality.spec.ts
+
+2. Running tests by Tags
+Allows filtering and selective execution of tests based on the tags defined in the title of the test() blocks (e.g., @smoke, @regression, @owners).
+
+Running essential tests (Smoke Tests):
+npx playwright test --grep "@smoke"
+
+Running regression tests:
+npx playwright test --grep "@regression"
+
+3. Running with Graphical Interface (UI Mode)
+Opens a dedicated Playwright interface that allows real-time execution monitoring, DOM element inspection, network verification, and granular (step-by-step) control over the tests.
+
+Command:
+npx playwright test --ui
+
+4. Viewing the HTML Report
+Following the execution of console commands, Playwright automatically generates a detailed report. This report provides an exact history of the executed steps, the time allocated to each action, and screenshots or traces for failed tests.
+
+Opening the report in the browser:
+npx playwright show-report
+
+5. Debugging
+To automatically pause code execution at each action and open the Playwright inspector, use the debug flag.
+
+Command:
+npx playwright test --debug

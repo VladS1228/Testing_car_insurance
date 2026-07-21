@@ -1,7 +1,8 @@
 import { test as baseTest, expect, APIRequestContext } from '@playwright/test';
 import { OwnersPage } from '../pages/OwnersPage';
-import { generateOwnerData, OwnerPayload } from '../../shared/data/test-data';
+import { uniqueOwnerData} from '../../shared/data/test-data';
 
+export type OwnerPayload = ReturnType<typeof uniqueOwnerData> & { id?: string };
 type MyFixtures = {
     ownersPage: OwnersPage;
     uniqueOwner: OwnerPayload;
@@ -15,7 +16,7 @@ export const test = baseTest.extend<MyFixtures>({
     },
 
     uniqueOwner: async ({ request }, use) => {
-        const ownerData = generateOwnerData();
+        const ownerData = uniqueOwnerData();
 
         const response = await request.post('/api/owners', {
             data: ownerData
